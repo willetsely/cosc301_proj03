@@ -17,12 +17,12 @@ void free(void *);
 void dump_memory_map(void);
 
 
-static const int HEAPSIZE = (1*1024*1024); // 1 MB
-static const int MINIMUM_ALLOC = sizeof(int) * 2;
+const int HEAPSIZE = (1*1024*1024); // 1 MB
+const int MINIMUM_ALLOC = sizeof(int) * 2;
 
 // global file-scope variables for keeping track
 // of the beginning of the heap.
-static void *heap_begin = NULL;
+void *heap_begin = NULL;
 
 
 void *malloc(size_t request_size) {
