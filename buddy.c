@@ -23,14 +23,14 @@ const int MINIMUM_ALLOC = sizeof(int) * 2;
 // global file-scope variables for keeping track
 // of the beginning of the heap.
 void *heap_begin = NULL;
-void *free_list = NULL;
+int *free_list = NULL;
 
 /*
 the gronk function is the work horse of malloc, performing all of the 
 recursive work of splitting free blocks into chunks of the correct size, 
 hence the namesake gronk
 */
-void int *gronk(void * heap_pointer,  int alloc_size)
+int *gronk(int *heap_pointer,  int alloc_size)
 {
     int *heap_ptr = heap_pointer;
             
@@ -81,9 +81,10 @@ void *malloc(size_t request_size)
         heap_begin = mmap(NULL, HEAPSIZE, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
         atexit(dump_memory_map);
         //initialize first header
-        heap_begin[0] = HEAPSIZE;
-        heap_begin[1] = 0; //0 for last free block
         free_list = heap_begin;
+        free_list[0] = HEAPSIZE;
+        free_list[1] = 0; //0 for last free block
+        
     }
     
     request_size = request_size + 8;
