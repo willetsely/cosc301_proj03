@@ -86,20 +86,22 @@ void dump_memory_map(void)
 
 }
 
-void offset_updater()
-{
+
+void offset_updater(void) {
     int *free_ptr = NULL;
     int *temp_ptr = heap_begin;
-    while(temp_ptr[1] != -1)
+    while (temp_ptr[1] != -1)
     {
-        if(temp_ptr[1] != 0)
+        if (temp_ptr[1] != 0) {
             free_ptr = temp_ptr;
-        if(free_ptr == NULL)
-        {
-            temp_ptr += (temp_ptr[0])/4;
+            }
+        if (free_ptr == NULL) {
+            temp_ptr += (temp_ptr[0]/4);
             continue;
         }
-        temp_ptr += (temp_ptr[0])/4;
+            if (temp_ptr[1] == 0 && free_ptr != NULL)
+            free_ptr[1] += (temp_ptr[0]/4);
+        temp_ptr += (temp_ptr[0]/4);
     }
     return;
 }
