@@ -73,7 +73,48 @@ void free(void *memory_block) {
 }
 
 void dump_memory_map(void) {
-
+    int *heap_ptr = heap_begin;
+    int *free_ptr = freelist;
+    int offset = 0;
+    printf("~~~~~~~~~~~~~~~~~~~~Memory Dump~~~~~~~~~~~~~~~~~~~~\n");
+    if (heap_ptr != free_ptr)		//checks for allocated memory before the freelist pointer
+    {
+	int size = 0;
+	while (heap_ptr != free_ptr)
+	{
+	    size += heap_ptr[0];
+	    heap_ptr += (heap_ptr[0]/4);
+	}
+	printf("Block size: %d, offset %d, allocated\n", size, offset);
+	offset = size;
+    }
+    while (free_ptr[1] != 0) 		//traverses through the free memory list
+    {
+	int alloc_size = free_ptr[1] - free_ptr[0];
+	if (alloc_size != 0)		//takes into account allocated memory that is bypassed in the offset
+	{
+	    printf("Block size: %d, offset %d, free\n", free_ptr[0], offset);
+	    offset += free_ptr[0];
+	    printf("Block size: %d, offset %d, allocated\n", alloc_size, offset);
+	    offset += alloc_size;
+	}
+	else				//next block is free memory
+	{
+	    printf("Block size: %d, offset %d, free\n", free_ptr[0], offset);
+	    offset += free_ptr[0];
+	}
+	free_ptr += (free_ptr[1]/4);
+    }
+    printf("Block size: %d, offset %d, free\n", free_ptr[0], offset);
+    offset += free_ptr[0];
+    if (HEAPSIZE > offset)		//checks for allocated memory at the end of the heap,
+    {					//after the last free memory space
+	int last_size = HEAPSIZE - offset;
+	printf("Block size: %d, offset %d, free\n", last_size, offset);
+	offset += last_size;
+    }
+    printf("~~~~~~~~~~~~~~~~~~End Memory Dump~~~~~~~~~~~~~~~~~~\n");
+    return;
 }
 
 void offset_updater(void) {
