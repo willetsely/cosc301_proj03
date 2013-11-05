@@ -24,6 +24,35 @@ const int MINIMUM_ALLOC = sizeof(int) * 2;
 // of the beginning of the heap.
 void *heap_begin = NULL;
 
+void int *gronk(int * heap_pointer,  int alloc_size)
+{
+    int *heap_ptr = heap_pointer;
+            
+    if (heap_ptr[0] == alloc_size)
+    {
+        heap_ptr[1] = 0;
+        offset_updater();
+        return heap_ptr[2];
+    }
+
+    if (heap_ptr[0] < alloc_size)
+    {
+        if (ptr[1] == -1)
+            return NULL;
+        int ptr_offset = ptr[1]/4;
+        return gronk(heap_ptr + ptr_offset, alloc_size);
+                                                            
+    } else {
+        int buddy = ptr[0]/2;
+        int former_offset = heap_ptr[1];
+        heap_ptr[0] = buddy;
+        heap_ptr[1] = buddy;
+        int buddy_offset = buddy/4;
+        heap_ptr[buddy_offset] = buddy;                      
+        heap_ptr[buddy_offset+1] = buddy;   
+        return gronk(heap_ptr, alloc_size);
+    }
+}
 
 void *malloc(size_t request_size)
 {
