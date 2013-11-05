@@ -29,6 +29,8 @@ int *free_list = NULL;
 the gronk function is the work horse of malloc, performing all of the 
 recursive work of splitting free blocks into chunks of the correct size, 
 hence the namesake gronk
+
+all honor to his name
 */
 int *gronk(int *heap_pointer,  int alloc_size)
 {
@@ -93,7 +95,8 @@ void *malloc(size_t request_size)
     while(alloc_size < request_size)
         alloc_size *= 2;    
     
-    alloc_ptr = gronk(free_list, alloc_size);    
+    alloc_ptr = gronk(free_list, alloc_size);
+    return alloc_ptr;    
 }
 
 void free(void *memory_block)
@@ -149,14 +152,13 @@ void dump_memory_map(void) {
 
 void offset_updater(int *heap_ptr, int old_offset) {
     int *temp_ptr = free_list;
-    int *back_ptr = temp_ptr;
     while (temp_ptr + temp_ptr[1] != heap_ptr)
     {
-        temp += temp[1];
+        temp_ptr += temp_ptr[1];
     }
     if(old_offset == 0)
-        temp[1] = 0;
+        temp_ptr[1] = 0;
     else
-        temp[1] += old_offset;
+        temp_ptr[1] += old_offset;
     return;
 }
