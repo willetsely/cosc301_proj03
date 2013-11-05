@@ -92,7 +92,7 @@ void *malloc(size_t request_size)
     while(alloc_size < request_size)
         alloc_size *= 2;    
     
-    alloc_ptr = Gronk(free_list, alloc_size);    
+    int alloc_ptr = gronk(free_list, alloc_size);    
 }
 
 void free(void *memory_block)
