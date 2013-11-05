@@ -102,7 +102,7 @@ void free(void *memory_block)
 
 void dump_memory_map(void) {
     int *heap_ptr = heap_begin;
-    int *free_ptr = freelist;
+    int *free_ptr = free_list;
     int offset = 0;
     printf("~~~~~~~~~~~~~~~~~~~~Memory Dump~~~~~~~~~~~~~~~~~~~~\n");
     if (heap_ptr != free_ptr)		//checks for allocated memory before the freelist pointer
