@@ -71,7 +71,7 @@ void int *gronk(void * heap_pointer,  int alloc_size)
 
 void *malloc(size_t request_size)
 {
-    void *alloc_ptr
+    void *alloc_ptr;
     // if heap_begin is NULL, then this must be the first
     // time that malloc has been called.  ask for a new
     // heap segment from the OS using mmap and initialize
@@ -92,7 +92,7 @@ void *malloc(size_t request_size)
     while(alloc_size < request_size)
         alloc_size *= 2;    
     
-    int alloc_ptr = gronk(free_list, alloc_size);    
+    alloc_ptr = gronk(free_list, alloc_size);    
 }
 
 void free(void *memory_block)
