@@ -152,7 +152,6 @@ void *tom_brady(int *mem_block)
 {
 	int *heap_ptr = heap_begin;
 	int count = 1;			//starts at 1 to count the block itself
-	int *next = mem_block + mem_block[0]/4;
 	int *before;
 	if (heap_ptr != mem_block)	//does not point outside the bounds of the heap
 		before = mem_block - mem_block[0]/4;
@@ -177,6 +176,7 @@ void *tom_brady(int *mem_block)
 		count++; 					//reach the size of the passed in memory block or when the heap_ptr
 		heap_ptr += heap_ptr[0]/4;	//points to a memory block of equal size
 	}
+	int *next = heap_ptr + heap_ptr[0]/4;
 	if (count % 2)		//if the count is odd we look at the next pointer 
 	{					//because it is the first buddy (when sequentially looking through the heap)
 		if (next[0] == mem_block[0] && next[1] >= mem_block[0])
