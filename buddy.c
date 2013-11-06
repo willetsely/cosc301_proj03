@@ -75,7 +75,7 @@ int *gronk(int *heap_pointer,  int alloc_size)
 
 void *malloc(size_t request_size)
 {
-    void *alloc_ptr;
+    int *alloc_ptr;
     // if heap_begin is NULL, then this must be the first
     // time that malloc has been called.  ask for a new
     // heap segment from the OS using mmap and initialize
@@ -83,7 +83,7 @@ void *malloc(size_t request_size)
     if (!heap_begin)
     {
         heap_begin = mmap(NULL, HEAPSIZE, PROT_READ|PROT_WRITE, MAP_ANON|MAP_PRIVATE, -1, 0);
-        atexit(dump_memory_map);
+        //atexit(dump_memory_map);
         //initialize first header
         free_list = heap_begin;
         free_list[0] = HEAPSIZE;
@@ -97,7 +97,8 @@ void *malloc(size_t request_size)
     while(alloc_size < request_size)
         alloc_size *= 2;    
     alloc_ptr = gronk(free_list, alloc_size);
-    return alloc_ptr;    
+	alloc_ptr = (void *)alloc_ptr;    
+	return alloc_ptr;    
 }
 
 void myfree(void *memory_block)
@@ -129,7 +130,7 @@ void myfree(void *memory_block)
     {
         int offset = header_ptr[0];
         int *temp = header_ptr;
-        while((temp + (temp[0]/4) + 1) == 0 && temp + temp[0]/4 != last_free)
+        while((temp + (temp[0]/4) + 1) == 0 && (temp + temp[0]/4) != last_free)
         //while the next block is allocated and is not the last free block
         {
             temp += temp[0]/4; //move temp the size of the allocated block
@@ -278,7 +279,6 @@ void free_offset_updater(int *header_ptr)
     {
         temp += temp[1]/4;
     }
-    int *offset_ctr = temp;
     int offset = header_ptr - temp;
     printf("offset = %d\n", offset);
     temp[1] = offset;
