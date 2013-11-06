@@ -38,9 +38,13 @@ int *gronk(int *heap_pointer,  int alloc_size)
             
     if (heap_ptr[0] == alloc_size) //heap_ptr points to a block of the correct size
     {
+    printf("allocating\n");
+    printf("heap_ptr = %d\n", heap_ptr);
+    printf("free_list = %d\n", free_list);
         if(heap_ptr == free_list) //if this block is the first free block
         {
-            free_list += heap_ptr[1]; //update freelist to point to next free block
+            free_list += heap_ptr[1]/4; //update freelist to point to next free block
+            printf("heap_ptr[1] = %d\n", heap_ptr[1]);
         }
         int old_offset = heap_ptr[1]; //save the old offset
         heap_ptr[1] = 0;  //mark as allocated
@@ -56,7 +60,9 @@ int *gronk(int *heap_pointer,  int alloc_size)
         return gronk(heap_ptr + ptr_offset, alloc_size);
                                                             
     } else {
+        printf("heap_ptr[0] = %d\n", heap_ptr[0]);
         int buddy = heap_ptr[0]/2;  //buddy = size of block/2
+        printf("buddy = %d\n\n", buddy);
         int old_offset = heap_ptr[1]; //save the old offset
         heap_ptr[0] = buddy; //set the size of the current block
         heap_ptr[1] = buddy; //set the offset to point to the buddy
@@ -150,14 +156,20 @@ void dump_memory_map(void) {
 
 
 void offset_updater(int *heap_ptr, int old_offset) {
+    printf("\ngot to offset_updater\n");
     int *temp_ptr = free_list;
-    while (temp_ptr + temp_ptr[1] != heap_ptr)
+    printf("temp_ptr[0] = %d\n", temp_ptr[0]);
+    printf("temp_ptr[1] = %d\n", temp_ptr[1]);
+    while ((temp_ptr + temp_ptr[1]) != heap_ptr || temp_ptr[1] == 0)
     {
-        temp_ptr += temp_ptr[1];
+        printf("entered loop\n");
+        if(temp_ptr[1] == 0)
+            return;
+        temp_ptr += temp_ptr[1]/4;
     }
     if(old_offset == 0)
         temp_ptr[1] = 0;
     else
-        temp_ptr[1] += old_offset;
+        temp_ptr[1] += old_offset/4;
     return;
 }
