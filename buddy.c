@@ -16,6 +16,9 @@ void *malloc(size_t);
 void free(void *);
 void dump_memory_map(void);
 void offset_updater(int *, int);
+int *tom_brady(int *);
+int *gronk(int *, int);
+void free_offset_updater(int *);
 
 const int HEAPSIZE = (1*1024*1024); // 1 MB
 const int MINIMUM_ALLOC = sizeof(int) * 2;
@@ -148,7 +151,7 @@ void free(void *memory_block)
 /*
 The tom_brady function is the function responsible for methodically scanning the heap to find the correct buddy of the memory block. If the buddy is free the two blocks are coalesced and tom_brady is recursively called again until the buddy cannot be coalesced. the tom_brady function manages the heap in the same way that Tom Brady (Quarterback of the New England Patriots, if you didn't know) methodically manages his offense. 
 */
-void *tom_brady(int *mem_block)
+int *tom_brady(int *mem_block)
 {
 	int *heap_ptr = heap_begin;
 	int count = 1;			//starts at 1 to count the block itself
