@@ -62,11 +62,11 @@ int *gronk(int *heap_pointer,  int alloc_size)
     } else {
         printf("heap_ptr[0] = %d\n", heap_ptr[0]);
         int buddy = heap_ptr[0]/2;  //buddy = size of block/2
-        printf("buddy = %d\n\n", buddy);
+        printf("buddy = %d\n", buddy);
         int old_offset = heap_ptr[1]; //save the old offset
         heap_ptr[0] = buddy; //set the size of the current block
         heap_ptr[1] = buddy; //set the offset to point to the buddy
-
+		printf("buddy offset = %d\n", buddy);
         int buddy_offset = buddy/4;
         heap_ptr[buddy_offset] = buddy; //set size of buddy block
         if(old_offset == 0) 
@@ -108,6 +108,65 @@ void free(void *memory_block)
 {
 
 }
+/*
+The tom_brady function is the function responsible for methodically scanning the heap to find the correct buddy of the memory block. If the buddy is free the two blocks are coalesced and tom_brady is recursively called again until the buddy cannot be coalesced. the tom_brady function manages the heap in the same way that Tom Brady (Quarterback of the New England Patriots, if you didn't know) methodically manages his offense. 
+*/
+void *tom_brady(int *mem_block)
+{
+	int *heap_ptr = heap_begin;
+	int count = 1;			//starts at 1 to count the block itself
+	int *next = mem_block + mem_block[0]/4;
+	int *before;
+	if (heap_ptr != mem_block)	
+		before = mem_block - mem_block[0]/4;
+	int cumulative = 0;
+	while (heap_ptr != mem_block)
+	{
+		if (heap_ptr[0] < mem_block[0])
+		{
+			cumulative += heap_ptr[0];
+			if (cumulative < mem_block[0])
+			{
+				heap_ptr += heap_ptr[0]/4;
+				continue;
+			}
+		}
+		if (heap_ptr[0] > mem_block[0])
+		{
+			heap_ptr += heap_ptr[0]/4;
+			continue;
+		}
+		cumulative = 0;
+		count++;
+		heap_ptr += heap_ptr[0]/4;
+	}
+	if (count % 2) //count is odd
+	{
+		if (next[0] == mem_block[0] && next[1] >= mem_block[0])
+		{
+			mem_block[0] *= 2;
+			mem_block[1] += next[1];
+			next[0] = 0;
+			next[1] = 0;
+			return tom_brady(mem_block);
+		}
+		else
+			return mem_block;
+	}
+	else
+	{
+		if (before[0] == mem_block[0])
+		{
+			before[0] *= 2;
+			mem_block[0] = 0;
+			mem_block[1] = 0;
+			return tom_brady(before);
+		}
+		else
+			return mem_block;
+	}
+}
+		
 
 void dump_memory_map(void) {
     int *heap_ptr = heap_begin;
@@ -116,39 +175,39 @@ void dump_memory_map(void) {
     printf("~~~~~~~~~~~~~~~~~~~~Memory Dump~~~~~~~~~~~~~~~~~~~~\n");
     if (heap_ptr != free_ptr)		//checks for allocated memory before the freelist pointer
     {
-	int size = 0;
-	while (heap_ptr != free_ptr)
-	{
-	    size += heap_ptr[0];
-	    heap_ptr += (heap_ptr[0]/4);
-	}
-	printf("Block size: %d, offset %d, allocated\n", size, offset);
-	offset = size;
+		int size = 0;
+		while (heap_ptr != free_ptr)
+		{
+	   		size += heap_ptr[0];
+	    	heap_ptr += (heap_ptr[0]/4);
+		}
+		printf("Block size: %d, offset %d, allocated\n", size, offset);
+		offset = size;
     }
     while (free_ptr[1] != 0) 		//traverses through the free memory list
     {
-	int alloc_size = free_ptr[1] - free_ptr[0];
-	if (alloc_size != 0)		//takes into account allocated memory that is bypassed in the offset
-	{
-	    printf("Block size: %d, offset %d, free\n", free_ptr[0], offset);
-	    offset += free_ptr[0];
-	    printf("Block size: %d, offset %d, allocated\n", alloc_size, offset);
-	    offset += alloc_size;
-	}
-	else				//next block is free memory
-	{
-	    printf("Block size: %d, offset %d, free\n", free_ptr[0], offset);
-	    offset += free_ptr[0];
-	}
-	free_ptr += (free_ptr[1]/4);
+		int alloc_size = free_ptr[1] - free_ptr[0];
+		if (alloc_size < 0)		//takes into account allocated memory that is bypassed in the offset
+		{
+	    	printf("Block size: %d, offset %d, free\n", free_ptr[0], offset);
+	    	offset += free_ptr[0];
+	    	printf("Block size: %d, offset %d, allocated\n", alloc_size, offset);
+	    	offset += alloc_size;
+		}
+		else				//next block is free memory
+		{
+	    	printf("Block size: %d, offset %d, free\n", free_ptr[0], offset);
+	    	offset += free_ptr[0];
+		}
+		free_ptr += free_ptr[1]/4;
     }
     printf("Block size: %d, offset %d, free\n", free_ptr[0], offset);
     offset += free_ptr[0];
     if (HEAPSIZE > offset)		//checks for allocated memory at the end of the heap,
-    {					//after the last free memory space
-	int last_size = HEAPSIZE - offset;
-	printf("Block size: %d, offset %d, free\n", last_size, offset);
-	offset += last_size;
+    {							//after the last free memory space
+		int last_size = HEAPSIZE - offset;
+		printf("Block size: %d, offset %d, free\n", last_size, offset);
+		offset += last_size;
     }
     printf("~~~~~~~~~~~~~~~~~~End Memory Dump~~~~~~~~~~~~~~~~~~\n");
     return;
