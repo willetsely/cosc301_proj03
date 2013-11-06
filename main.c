@@ -8,7 +8,7 @@
 void dump_memory_map(void);
 
 int main(int argc, char **argv) {
-    void *m1 = malloc(50);  // should allocate 64 bytes
+    void *m1 = malloc(50);  // should allocate 64 byte
     void *m2 = malloc(100); // should allocate 128 bytes
     free(m1);
     dump_memory_map();
