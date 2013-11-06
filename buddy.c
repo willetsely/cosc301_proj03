@@ -105,10 +105,12 @@ void free(void *memory_block)
 
     //find the last free block
     int *last_free = free_list;
-    while(last_free[1] != 0){
+    while(last_free[1] != 0)
+    {
         last_free += last_free[1]/4;
     }
     //insert freed block into the free list, i.e. correct offsets
+
     if(last_free < header_ptr) //header_ptr needs to be the new last free block
     {
         int offset = last_free[0];
@@ -132,12 +134,16 @@ void free(void *memory_block)
             offset += temp[0]; //add the size of the next block to offset
         }
         header_ptr[1] = offset;
+        if(header_ptr < free_list)//check if the freed block should be the new freelist head
+        {
+            free_list = header_ptr;
+        }
+        else // update the offset of the free block above the newly freed block
+        {
+            free_offset_updater(header_ptr);
+        }
     }
-    //check if the freed block should be the new head of the free list
-    if(header_ptr < free_list){
-        free_list = header_ptr;
-    }
-    
+    tom_brady(header_ptr);
 }
 /*
 The tom_brady function is the function responsible for methodically scanning the heap to find the correct buddy of the memory block. If the buddy is free the two blocks are coalesced and tom_brady is recursively called again until the buddy cannot be coalesced. the tom_brady function manages the heap in the same way that Tom Brady (Quarterback of the New England Patriots, if you didn't know) methodically manages his offense. 
@@ -261,4 +267,15 @@ void offset_updater(int *heap_ptr, int old_offset)
     return;
 }
 
-void free_offset_updater()
+void free_offset_updater(int *header_ptr)
+{
+    int *temp = free_list;
+    while(temp + temp[1] < header_ptr)//traverse the list until the free block immediately above the newly freed block
+    {
+        temp += temp[1];
+    }
+    int *offset_ctr = temp;
+    int offset = header_ptr - temp;
+    printf("offset = %d\n", offset);
+    temp[1] = offset;
+}
