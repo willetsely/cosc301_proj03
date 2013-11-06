@@ -117,53 +117,53 @@ void *tom_brady(int *mem_block)
 	int count = 1;			//starts at 1 to count the block itself
 	int *next = mem_block + mem_block[0]/4;
 	int *before;
-	if (heap_ptr != mem_block)	
+	if (heap_ptr != mem_block)	//does not point outside the bounds of the heap
 		before = mem_block - mem_block[0]/4;
 	int cumulative = 0;
-	while (heap_ptr != mem_block)
+	while (heap_ptr != mem_block)  //passes through the heap until the passed in memory block is met
 	{
-		if (heap_ptr[0] < mem_block[0])
+		if (heap_ptr[0] < mem_block[0])	
 		{
 			cumulative += heap_ptr[0];
 			if (cumulative < mem_block[0])
 			{
 				heap_ptr += heap_ptr[0]/4;
-				continue;
-			}
+				continue;		//count is not incremented because cumulative is not yet of the same size
+			}					//as the passed in memory block
 		}
 		if (heap_ptr[0] > mem_block[0])
 		{
-			heap_ptr += heap_ptr[0]/4;
+			heap_ptr += heap_ptr[0]/4; 	//count is not incremented because the block is too big 
 			continue;
 		}
-		cumulative = 0;
-		count++;
-		heap_ptr += heap_ptr[0]/4;
+		cumulative = 0;				//count increments either when an accumulation of small memory blocks
+		count++; 					//reach the size of the passed in memory block or when the heap_ptr
+		heap_ptr += heap_ptr[0]/4;	//points to a memory block of equal size
 	}
-	if (count % 2) //count is odd
-	{
+	if (count % 2)		//if the count is odd we look at the next pointer 
+	{					//because it is the first buddy (when sequentially looking through the heap)
 		if (next[0] == mem_block[0] && next[1] >= mem_block[0])
 		{
 			mem_block[0] *= 2;
 			mem_block[1] += next[1];
 			next[0] = 0;
 			next[1] = 0;
-			return tom_brady(mem_block);
+			return tom_brady(mem_block);	//open buddy is found and tom_brady is called again
 		}
 		else
-			return mem_block;
+			return mem_block;			//no open buddy, nothing is coalesced
 	}
-	else
-	{
-		if (before[0] == mem_block[0])
+	else				//the count is even so we look at the before pointer 
+	{					//because it is the second of the two buddies (sequentially)
+		if (before[0] == mem_block[0] && before[1] > 0) 
 		{
 			before[0] *= 2;
 			mem_block[0] = 0;
 			mem_block[1] = 0;
-			return tom_brady(before);
+			return tom_brady(before);	//open buddy at the before pointer, tom_brady is called again
 		}
 		else
-			return mem_block;
+			return mem_block;	//no open buddy, nothing is coalesced
 	}
 }
 		
@@ -219,7 +219,7 @@ void offset_updater(int *heap_ptr, int old_offset) {
     int *temp_ptr = free_list;
     printf("temp_ptr[0] = %d\n", temp_ptr[0]);
     printf("temp_ptr[1] = %d\n", temp_ptr[1]);
-    while ((temp_ptr + temp_ptr[1]) != heap_ptr || temp_ptr[1] == 0)
+    while ((temp_ptr + temp_ptr[1]/4) != heap_ptr || temp_ptr[1] == 0)
     {
         printf("entered loop\n");
         if(temp_ptr[1] == 0)
@@ -229,6 +229,6 @@ void offset_updater(int *heap_ptr, int old_offset) {
     if(old_offset == 0)
         temp_ptr[1] = 0;
     else
-        temp_ptr[1] += old_offset/4;
+        temp_ptr[1] += old_offset;
     return;
 }
