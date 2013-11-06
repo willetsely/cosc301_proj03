@@ -60,14 +60,13 @@ int *gronk(int *heap_pointer,  int alloc_size)
         int old_offset = heap_ptr[1]; //save the old offset
         heap_ptr[0] = buddy; //set the size of the current block
         heap_ptr[1] = buddy; //set the offset to point to the buddy
-
+		printf("buddy offset = %d\n", buddy);
         int buddy_offset = buddy/4;
         heap_ptr[buddy_offset] = buddy; //set size of buddy block
         if(old_offset == 0) 
             heap_ptr[buddy_offset + 1] = 0;
         else                      
             heap_ptr[buddy_offset + 1] = old_offset - buddy;
-           
         return gronk(heap_ptr, alloc_size);
     }
 }
@@ -95,7 +94,6 @@ void *malloc(size_t request_size)
 
     while(alloc_size < request_size)
         alloc_size *= 2;    
-    
     alloc_ptr = gronk(free_list, alloc_size);
     return alloc_ptr;    
 }
@@ -141,6 +139,65 @@ void free(void *memory_block)
     }
     
 }
+/*
+The tom_brady function is the function responsible for methodically scanning the heap to find the correct buddy of the memory block. If the buddy is free the two blocks are coalesced and tom_brady is recursively called again until the buddy cannot be coalesced. the tom_brady function manages the heap in the same way that Tom Brady (Quarterback of the New England Patriots, if you didn't know) methodically manages his offense. 
+*/
+void *tom_brady(int *mem_block)
+{
+	int *heap_ptr = heap_begin;
+	int count = 1;			//starts at 1 to count the block itself
+	int *next = mem_block + mem_block[0]/4;
+	int *before;
+	if (heap_ptr != mem_block)	
+		before = mem_block - mem_block[0]/4;
+	int cumulative = 0;
+	while (heap_ptr != mem_block)
+	{
+		if (heap_ptr[0] < mem_block[0])
+		{
+			cumulative += heap_ptr[0];
+			if (cumulative < mem_block[0])
+			{
+				heap_ptr += heap_ptr[0]/4;
+				continue;
+			}
+		}
+		if (heap_ptr[0] > mem_block[0])
+		{
+			heap_ptr += heap_ptr[0]/4;
+			continue;
+		}
+		cumulative = 0;
+		count++;
+		heap_ptr += heap_ptr[0]/4;
+	}
+	if (count % 2) //count is odd
+	{
+		if (next[0] == mem_block[0] && next[1] >= mem_block[0])
+		{
+			mem_block[0] *= 2;
+			mem_block[1] += next[1];
+			next[0] = 0;
+			next[1] = 0;
+			return tom_brady(mem_block);
+		}
+		else
+			return mem_block;
+	}
+	else
+	{
+		if (before[0] == mem_block[0])
+		{
+			before[0] *= 2;
+			mem_block[0] = 0;
+			mem_block[1] = 0;
+			return tom_brady(before);
+		}
+		else
+			return mem_block;
+	}
+}
+		
 
 void dump_memory_map(void) {
     int *heap_ptr = heap_begin;
