@@ -155,10 +155,8 @@ int *tom_brady(int *mem_block)
 {
 	int *heap_ptr = heap_begin;
 	int count = 1;			//starts at 1 to count the block itself
-	int *before;
-	if (heap_ptr != mem_block)	//does not point outside the bounds of the heap
-		before = mem_block - mem_block[0]/4;
 	int cumulative = 0;
+	int last_size = 0;
 	while (heap_ptr != mem_block)  //passes through the heap until the passed in memory block is met
 	{
 		if (heap_ptr[0] < mem_block[0])	
@@ -167,19 +165,23 @@ int *tom_brady(int *mem_block)
 			if (cumulative < mem_block[0])
 			{
 				heap_ptr += heap_ptr[0]/4;
+				last_size = heap_ptr[0];
 				continue;		//count is not incremented because cumulative is not yet of the same size
 			}					//as the passed in memory block
 		}
 		if (heap_ptr[0] > mem_block[0])
 		{
 			heap_ptr += heap_ptr[0]/4; 	//count is not incremented because the block is too big 
+			last_size = heap_ptr[0];			
 			continue;
 		}
+		last_size = heap_ptr[0];
 		cumulative = 0;				//count increments either when an accumulation of small memory blocks
 		count++; 					//reach the size of the passed in memory block or when the heap_ptr
 		heap_ptr += heap_ptr[0]/4;	//points to a memory block of equal size
 	}
-	int *next = heap_ptr + heap_ptr[0]/4;
+	int *before = heap_ptr - (last_size / 4);
+	int *next = heap_ptr + (heap_ptr[0] / 4);
 	if (count % 2)		//if the count is odd we look at the next pointer 
 	{					//because it is the first buddy (when sequentially looking through the heap)
 		if (next[0] == mem_block[0] && next[1] >= mem_block[0])
