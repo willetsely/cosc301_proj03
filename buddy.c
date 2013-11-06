@@ -66,7 +66,7 @@ int *gronk(int *heap_pointer,  int alloc_size)
         if(old_offset == 0) 
             heap_ptr[buddy_offset + 1] = 0;
         else                      
-            heap_ptr[buddy_offset + 1] = old_offset - buddy;   
+            heap_ptr[buddy_offset + 1] = old_offset - buddy; 
         return gronk(heap_ptr, alloc_size);
     }
 }
@@ -94,7 +94,6 @@ void *malloc(size_t request_size)
 
     while(alloc_size < request_size)
         alloc_size *= 2;    
-    
     alloc_ptr = gronk(free_list, alloc_size);
     return alloc_ptr;    
 }
